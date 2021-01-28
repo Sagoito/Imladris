@@ -1,2 +1,2 @@
 # Imladris
-Repository created for image inpainting university project
+Repository created for image inpainting university project.
