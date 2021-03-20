@@ -13,3 +13,11 @@ https://imladris.atlassian.net/issues/?filter=10000&jql=project%20%3D%20IR%20AND
 
 Bartłomiej Guz
 https://imladris.atlassian.net/issues/?filter=10000&jql=project%20%3D%20IR%20AND%20issuetype%20in%20(Epic%2C%20Task)%20AND%20reporter%20in%20(5f8abce856eec000768e9f17)%20ORDER%20BY%20Rank%20ASC
+
+
+# Setup 
+All you have to do just follow the damn train...
+or create images_all folder in src after this 
+download the val2017 coco dataset
+and put it into data_all folder.
+You have to use pip install -r re quirements.txt
