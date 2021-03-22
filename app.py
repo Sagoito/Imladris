@@ -1,6 +1,5 @@
 from src.data_preprocesing import prepare_data
 from src.settings import Setting
-import configparser
 import os
 from pathlib import Path
 
