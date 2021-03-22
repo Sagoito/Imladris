@@ -35,7 +35,11 @@ def split_date(setting):
                 dst = f"{test_path}/{filename}"
             else:
                 dst = f"{val_path}/{filename}"
-            shutil.copyfile(src, dst)
+
+            try:
+                shutil.copyfile(src, dst)
+            except shutil.Error as err:
+                print(err.errno)
 
 
 def normalize_data(path_src: Path, path_dst: Path):
@@ -47,10 +51,15 @@ def normalize_data(path_src: Path, path_dst: Path):
     for (_, _, filenames) in os.walk(path_src):
         scaler = MinMaxScaler()
         for filename in filenames:
-            img = cv2.imread(f"{path_src}/{filename}",0)
-            scaler.fit(img)
-            norm_img = scaler.transform(img)
-            cv2.imwrite(f"{path_dst}/{filename}", norm_img)
+            try:
+                img = cv2.imread(f"{path_src}/{filename}",0)
+                scaler.fit(img)
+                norm_img = scaler.transform(img)
+                cv2.imwrite(f"{path_dst}/{filename}", norm_img)
+            except cv2.error as err:
+                print(err.msg)
+
+
 
 
 def prepare_data(setting):
