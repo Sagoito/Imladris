@@ -16,8 +16,9 @@ https://imladris.atlassian.net/issues/?filter=10000&jql=project%20%3D%20IR%20AND
 
 
 # Setup 
-All you have to do just follow the damn train...
-or create images_all folder in src after this 
-download the val2017 coco dataset
-and put it into data_all folder.
+All you need to do is 
+add images to images_all folder
+Download mask_rcnn_coco.h5 (https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5)
+Put it in src folder
+Download http://images.cocodataset.org/annotations/annotations_trainval2017.zip and put it in 'src/annotations/' folder
 You have to use pip install -r re quirements.txt
