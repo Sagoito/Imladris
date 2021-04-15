@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>image</title>
-</head>
-<body>
+
+{% extends "base.html" %}
+{% block content %}
     <img src="{{url_for('static', filename=name)}}" alt="User Image">
-</body>
-</html>
+{% endblock content %}

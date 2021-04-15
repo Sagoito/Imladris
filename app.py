@@ -55,12 +55,14 @@ def show_image():
 
     model_process = Process(target=run_model, args=(filename,
                                                     setting,
-                                                    clipboard, ))
-    model_process.start()
-    model_process.join()
+                                                    clipboard, ))                  
+    try:
+        model_process.start()
+        model_process.join()
+    except Exception as err:
+        print(err)
 
     filename_segmented = f"user_image/{clipboard.get()}"
-    print(filename_segmented)
     return render_template('show_image.html', name=filename_segmented)
 
 
