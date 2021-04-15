@@ -6,7 +6,10 @@ This is only Setting class
 
 
 class Setting:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path,
+                 train_split=0.5,
+                 test_split=0.3,
+                 val_split=0.2):
         # all images
         self.data_all_path = Path(f"{path}/images_all")
         # images after split
@@ -18,8 +21,8 @@ class Setting:
         self.normalize_test_path = Path(f"{path}/norm_test2017")
         self.normalize_val_path = Path(f"{path}/norm_val2017")
         # temporary user files
-        self.user_image = "static/user_image"
+        self.user_image = "static/user_image/"
         # split parameters
-        self.train_split = 0.5
-        self.test_split = 0.3
-        self.val_split = 0.2
+        self.train_split = train_split
+        self.test_split = test_split
+        self.val_split = val_split
