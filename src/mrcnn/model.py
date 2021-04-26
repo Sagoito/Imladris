@@ -22,7 +22,8 @@ import tensorflow.keras.layers as KE
 import tensorflow.keras.utils as KU
 from tensorflow.python.eager import context
 import tensorflow.keras.models as KM
-
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 from src.mrcnn import utils
 
 # Requires TensorFlow 2.0+
