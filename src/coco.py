@@ -1,10 +1,14 @@
 import os
 import sys
+import time
+
 from pycocotools.coco import COCO
 from pycocotools import mask as maskUtils
 import numpy as np
 
 # Root directory of the project
+from pycocotools.cocoeval import COCOeval
+
 ROOT_DIR = os.path.abspath("../../")
 
 # Import Mask RCNN
@@ -27,7 +31,7 @@ class CocoConfig(Config):
 
 
 class CocoDataset(utils.Dataset):
-    def load_coco(self, subset):
+    def load_coco(self, subset, return_coco=False):
         coco = COCO("src/annotations/instances_val2017.json")
         image_dir = "src/{}2017".format(subset)
 
@@ -44,6 +48,7 @@ class CocoDataset(utils.Dataset):
         # Add images
         image_list = os.listdir(image_dir)
 
+        count = 0
         for i in image_ids:
             path = coco.imgs[i]['file_name']
             if image_list.count(path):
@@ -54,6 +59,9 @@ class CocoDataset(utils.Dataset):
                     height=coco.imgs[i]["height"],
                     annotations=coco.loadAnns(coco.getAnnIds(
                         imgIds=[i], catIds=class_ids, iscrowd=None)))
+                count += 1
+        if return_coco:
+            return coco, count
 
     def load_mask(self, image_id):
         image_info = self.image_info[image_id]
@@ -112,10 +120,96 @@ class CocoDataset(utils.Dataset):
             rle = ann['segmentation']
         return rle
 
+
+############################################################
+#  COCO Evaluation
+############################################################
+
+def build_coco_results(dataset, image_ids, rois, class_ids, scores, masks):
+    """Arrange resutls to match COCO specs in http://cocodataset.org/#format
+    """
+    # If no results, return an empty list
+    if rois is None:
+        return []
+
+    results = []
+    for image_id in image_ids:
+        # Loop through detections
+        for i in range(rois.shape[0]):
+            class_id = class_ids[i]
+            score = scores[i]
+            bbox = np.around(rois[i], 1)
+            mask = masks[:, :, i]
+
+            result = {
+                "image_id": image_id,
+                "category_id": dataset.get_source_class_id(class_id, "coco"),
+                "bbox": [bbox[1], bbox[0], bbox[3] - bbox[1], bbox[2] - bbox[0]],
+                "score": score,
+                "segmentation": maskUtils.encode(np.asfortranarray(mask))
+            }
+            results.append(result)
+    return results
+
+
+def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=None):
+    """Runs official COCO evaluation.
+    dataset: A Dataset object with valiadtion data
+    eval_type: "bbox" or "segm" for bounding box or segmentation evaluation
+    limit: if not 0, it's the number of images to use for evaluation
+    """
+    # Pick COCO images from the dataset
+    image_ids = image_ids or dataset.image_ids
+
+    # Limit to a subset
+    if limit:
+        image_ids = image_ids[:limit]
+
+    # Get corresponding COCO image IDs.
+    coco_image_ids = [dataset.image_info[id]["id"] for id in image_ids]
+
+    t_prediction = 0
+    t_start = time.time()
+
+    results = []
+    for i, image_id in enumerate(image_ids):
+        # Load image
+        image = dataset.load_image(image_id)
+
+        # Run detection
+        t = time.time()
+        r = model.detect([image], verbose=0)[0]
+        t_prediction += (time.time() - t)
+
+        # Convert results to COCO format
+        # Cast masks to uint8 because COCO tools errors out on bool
+        image_results = build_coco_results(dataset, coco_image_ids[i:i + 1],
+                                           r["rois"], r["class_ids"],
+                                           r["scores"],
+                                           r["masks"].astype(np.uint8))
+        results.extend(image_results)
+
+    # Load results. This modifies results with additional attributes.
+    coco_results = coco.loadRes(results)
+
+    # Evaluate
+    cocoEval = COCOeval(coco, coco_results, eval_type)
+    cocoEval.params.imgIds = coco_image_ids
+    cocoEval.evaluate()
+    cocoEval.accumulate()
+    cocoEval.summarize()
+
+    print("Prediction time: {}. Average {}/image".format(
+        t_prediction, t_prediction / len(image_ids)))
+    print("Total time: ", time.time() - t_start)
+
+
 """
     Function training model with pre-trained weights
 """
-def train():
+
+
+def train(command="train"):
     dataset_train = CocoDataset()
     dataset_train.load_coco("train")
     dataset_train.prepare()
@@ -125,41 +219,56 @@ def train():
     dataset_val.prepare()
     config = CocoConfig()
 
-    model = modellib.MaskRCNN(mode="training", config=config, model_dir='logs/')
+    if command == "train":
+        model = modellib.MaskRCNN(mode="training", config=config, model_dir='logs/')
+    else:
+        model = modellib.MaskRCNN(mode="inference", config=config, model_dir='logs/')
 
     model_path = "src/mask_rcnn_coco.h5"
+
     # Load weights
     print("Loading weights ", model_path)
     model.load_weights(model_path, by_name=True)
+    if command == "train":
+        # Training - Stage 1
+        print("Training network heads")
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE,
+                    epochs=40,
+                    layers='heads')
 
-    # Training - Stage 1
-    print("Training network heads")
-    model.train(dataset_train, dataset_val,
-                learning_rate=config.LEARNING_RATE,
-                epochs=40,
-                layers='heads')
+        # Training - Stage 2
+        # Finetune layers from ResNet stage 4 and up
+        print("Fine tune Resnet stage 4 and up")
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE,
+                    epochs=120,
+                    layers='4+')
 
-    # Training - Stage 2
-    # Finetune layers from ResNet stage 4 and up
-    print("Fine tune Resnet stage 4 and up")
-    model.train(dataset_train, dataset_val,
-                learning_rate=config.LEARNING_RATE,
-                epochs=120,
-                layers='4+')
+        # Training - Stage 3
+        # Fine tune all layers
+        print("Fine tune all layers")
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE / 10,
+                    epochs=160,
+                    layers='all')
 
-    # Training - Stage 3
-    # Fine tune all layers
-    print("Fine tune all layers")
-    model.train(dataset_train, dataset_val,
-                learning_rate=config.LEARNING_RATE / 10,
-                epochs=160,
-                layers='all')
+        return model
+    else:
+        # Validation dataset
+        dataset_val = CocoDataset()
+        val_type = "val"
+        coco, limit = dataset_val.load_coco(val_type, return_coco=True)
+        dataset_val.prepare()
+        print("Running COCO evaluation on {} images.".format(limit))
+        evaluate_coco(model, dataset_val, coco, "bbox", limit=int(limit))
 
-    return model
 
 """
     Function returns model and class_names from pre-trained weights
 """
+
+
 def get_model():
     dataset = CocoDataset()
     dataset.load_coco("test")
