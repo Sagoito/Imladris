@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2 id="demo">Pozycja demo</h2>
+    <h2>Wybierz obiekt za pomocą kilknięcia myszą i wciśnij przycisk pod zdjęciem</h2>
+    <img id="pic_segm" src="{{url_for('static', filename=name)}}" onclick="onClick(event)">
+    <form method="POST" enctype="multipart/form-data">
+      <input id="cords" type="hidden" name="cords">
+      <input type="submit" value="Submit">
+    <script src="{{url_for('static',filename='onClick.js')}}">
+    </script>
+
+{% endblock content %}
