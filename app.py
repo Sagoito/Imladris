@@ -141,18 +141,20 @@ def run_model(filename, setting, clipboard):
     
     x_px = 0
     y_px = 0
+    i_category = 0
     detected_objects = {}
     for obj in r['class_ids']:
-        detected_objects[obj] = {}
+        detected_objects[i_category] = {}
+        i_category +=1
     for y in r['masks']:
         x_px = 0
         for x in y:
             i_category = 0           
             for if_detected in x:          
                 if if_detected == True:
-                    if y_px not in detected_objects[r['class_ids'][i_category]]:
-                        detected_objects[r['class_ids'][i_category]][y_px]=[]
-                    detected_objects[r['class_ids'][i_category]][y_px].append(x_px)
+                    if y_px not in detected_objects[i_category]:
+                        detected_objects[i_category][y_px]=[]
+                    detected_objects[i_category][y_px].append(x_px)
                 i_category+=1    
             x_px+=1
         y_px+=1            

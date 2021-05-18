@@ -21,7 +21,7 @@ class Setting:
         self.normalize_test_path = Path(f"{path}/norm_test2017")
         self.normalize_val_path = Path(f"{path}/norm_val2017")
         # temporary user files
-        self.user_image = "static/user_image/"
+        self.user_image = "D:/Projekt_zaspolowy/Imladris/Imladris/static"
         # split parameters
         self.train_split = train_split
         self.test_split = test_split
