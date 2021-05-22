@@ -9,6 +9,7 @@ from src.data_preprocesing import prepare_data
 from src.mrcnn import visualize
 from src.settings import Setting
 from pathlib import Path
+from generative_inpainting.test import run_gan
 
 import matplotlib.pyplot as plt
 import src.coco as network
@@ -73,14 +74,21 @@ def prepare_masked_image():
         if go:
             break
     try:
-        shapes = cv2.imread("./static/user_image/"+filename, cv2.IMREAD_COLOR).shape
-        masked_file = np.zeros((shapes[0], shapes[1], 4))
+        img = cv2.imread("./static/user_image/"+filename, cv2.IMREAD_COLOR)
+        masked_file = np.zeros((img.shape[0], img.shape[1], 4))
 
         for row in chosen_object_pixels:
             for column in chosen_object_pixels[row]:
-                masked_file[row, column, :] = 255
+                masked_file[row-15:row+15, column-15:column+15, :] = 255
+                img[row-15:row+15, column-15:column+15, :] = 255
 
         cv2.imwrite("./static/user_image/masked_"+filename, masked_file)
+        cv2.imwrite("./static/user_image/_" + filename, img)
+
+        run_gan("./generative_inpainting/model_logs/release_places2_256",
+                "./static/user_image/_" + filename,
+                "./static/user_image/masked_" + filename,
+                "./static/user_image/out_" + filename)
     except Exception as e:
         print(e)
 
