@@ -80,13 +80,11 @@ def prepare_masked_image():
         for row in chosen_object_pixels:
             for column in chosen_object_pixels[row]:
                 masked_file[row-15:row+15, column-15:column+15, :] = 255
-                img[row-15:row+15, column-15:column+15, :] = 255
 
         cv2.imwrite("./static/user_image/masked_"+filename, masked_file)
-        cv2.imwrite("./static/user_image/_" + filename, img)
 
         run_gan("./generative_inpainting/model_logs/release_places2_256",
-                "./static/user_image/_" + filename,
+                "./static/user_image/" + filename,
                 "./static/user_image/masked_" + filename,
                 "./static/user_image/out_" + filename)
     except Exception as e:
