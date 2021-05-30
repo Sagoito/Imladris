@@ -1,6 +1,8 @@
-import ctypes
 import sys
 import os
+import threading
+import time
+
 import cv2
 import json
 import numpy as np
@@ -12,7 +14,6 @@ from src.settings import Setting
 from pathlib import Path
 from generative_inpainting.test import run_gan
 
-import matplotlib.pyplot as plt
 import src.coco as network
 
 from flask import Flask
@@ -23,6 +24,7 @@ from multiprocessing import Process, Queue, Manager, Value
 
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
 
 @app.before_first_request
 def before_first_request():
@@ -35,6 +37,7 @@ def before_first_request():
         # model_process.join()
     except Exception as err:
         print(err)
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -63,10 +66,37 @@ def index():
     return render_template('index.html')
 
 
+def remove_images(names, setting):
+    """
+    Args:
+        names:
+        setting:
+    Description:
+        Removing redundant objects from server after ten seconds
+    """
+    time.sleep(10)
+    try:
+        os.remove(os.path.join(setting.user_image, names[0]))
+        os.remove(os.path.join(setting.user_image, names[1]))
+        os.remove(os.path.join(setting.user_image, names[2]))
+        os.remove(os.path.join(setting.user_image, names[3]))
+    except Exception as e:
+        print(e)
+
+
 @app.route('/show_inpainted_image')
 def show_inpainted_image():
     filename_out = clipboard.get()
+    names = [
+        session['filename'],
+        session['filename_masked'],
+        session['filename_out'],
+        session['filename_segmented']
+    ]
+    delete = threading.Thread(target=remove_images, args=(names, setting, ))
+    delete.start()
     return render_template('show_image.html', name=filename_out)
+
 
 def prepare_masked_image():
     filename = session['filename']
@@ -93,7 +123,8 @@ def prepare_masked_image():
                 masked_file[row-15:row+15, column-15:column+15, :] = 255
 
         cv2.imwrite("./static/user_image/masked_"+filename, masked_file)
-
+        session['filename_masked'] = "masked_" + filename
+        session['filename_out'] = "out_" + filename
         run_gan("./generative_inpainting/model_logs/release_places2_256",
                 "./static/user_image/" + filename,
                 "./static/user_image/masked_" + filename,
@@ -118,8 +149,8 @@ def show_image():
         if not run_statement.value:
             break
     filename_segmented = f"{clipboard.get()}"
+    session['filename_segmented'] = filename_segmented
     filename_segmented = "user_image/" + filename_segmented
-
     """           
     dictionary like {(detected object category from r['class_ids']): {y coordinates : [x coordinates in y_cords line]}}
     example : 1 - number if 'person' object detected and choosen
@@ -156,7 +187,6 @@ def run_model(setting, clipboard, run_statement):
                                                 r['class_ids'], class_names,
                                                 r['scores'], ret_image=True,
                                                 show=False)
-
             x_px = 0
             y_px = 0
             i_category = 0
@@ -195,7 +225,6 @@ if __name__ == "__main__":
     clipboard = Manager().Queue()
     setting = Setting('src')
     os.makedirs(Path('src/images_all'), exist_ok=True)
-    setting = Setting('src')
 
     if len(sys.argv) > 1 and sys.argv[1] == "prep":
         prepare_data(setting)
