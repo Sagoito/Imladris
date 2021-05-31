@@ -6,6 +6,7 @@ import time
 import cv2
 import json
 import numpy as np
+from random import randint
 from skimage import io
 
 from src.data_preprocesing import prepare_data
@@ -58,23 +59,46 @@ def index():
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+            """
+            Add random number to filename for avoiding collisions.
+            """
+            filename = str(randint(0, 1000000)) + secure_filename(file.filename)
             file.save(os.path.join(setting.user_image, filename))
             session['filename'] = filename
+
+            split = session['filename'].split('.')
+            session['filename_segmented'] = f"{split[0]}_segmented.{split[1]}"
+            session['filename_masked'] = f"masked_{session['filename']}"
+            session['filename_out'] = f"out_{session['filename']}"
+
+            names = [
+                session['filename'],
+                session['filename_segmented'],
+                session['filename_masked'],
+                session['filename_out'],
+            ]
+            """
+            If user quit application before last request
+            his images will be removed after five minutes 
+            """
+            delete = threading.Thread(target=remove_images, args=(names, setting, 60 * 5))
+            delete.start()
+
             return redirect(url_for('show_image'))
 
     return render_template('index.html')
 
 
-def remove_images(names, setting):
+def remove_images(names: list, setting, sec: int) -> None:
     """
     Args:
         names:
         setting:
+        sec: defining time for deleting user images
     Description:
         Removing redundant objects from server after ten seconds
     """
-    time.sleep(10)
+    time.sleep(sec)
     try:
         os.remove(os.path.join(setting.user_image, names[0]))
         os.remove(os.path.join(setting.user_image, names[1]))
@@ -89,11 +113,14 @@ def show_inpainted_image():
     filename_out = clipboard.get()
     names = [
         session['filename'],
+        session['filename_segmented'],
         session['filename_masked'],
         session['filename_out'],
-        session['filename_segmented']
     ]
-    delete = threading.Thread(target=remove_images, args=(names, setting, ))
+    """
+    After ten seconds from user images will be removed
+    """
+    delete = threading.Thread(target=remove_images, args=(names, setting, 10))
     delete.start()
     return render_template('show_image.html', name=filename_out)
 
