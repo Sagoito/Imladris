@@ -207,6 +207,8 @@ def run_model(setting, clipboard, run_statement):
             file_path = os.path.join(setting.user_image, filename)
 
             image = io.imread(file_path)
+            if len(image.shape) > 2 and image.shape[2] == 4:
+                image = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
             results = model.detect([image], verbose=1)
 
             r = results[0]
