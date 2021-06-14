@@ -42,28 +42,28 @@ def split_date(setting):
                 print(err.errno)
 
 
-# def normalize_data(path_src: Path, path_dst: Path):
-#     """
-#     This function should normalize images
-#     and create folder for normalized images.
-#     """
-#     os.makedirs(path_dst, exist_ok=True)
-#     for (_, _, filenames) in os.walk(path_src):
-#         scaler = MinMaxScaler()
-#         for filename in filenames:
-#             try:
-#                 img = cv2.imread(f"{path_src}/{filename}",0)
-#                 scaler.fit(img)
-#                 norm_img = scaler.transform(img)
-#                 cv2.imwrite(f"{path_dst}/{filename}", norm_img)
-#             except cv2.error as err:
-#                 print(err.msg)
+def normalize_data(path_src: Path, path_dst: Path):
+    """
+    This function should normalize images
+    and create folder for normalized images.
+    """
+    os.makedirs(path_dst, exist_ok=True)
+    for (_, _, filenames) in os.walk(path_src):
+        scaler = MinMaxScaler()
+        for filename in filenames:
+            try:
+                img = cv2.imread(f"{path_src}/{filename}",0)
+                scaler.fit(img)
+                norm_img = scaler.transform(img)
+                cv2.imwrite(f"{path_dst}/{filename}", norm_img)
+            except cv2.error as err:
+                print(err.msg)
 
 
 
 
 def prepare_data(setting):
     split_date(setting)
-    # normalize_data(setting.train_path, setting.normalize_train_path)
-    # normalize_data(setting.test_path, setting.normalize_test_path)
-    # normalize_data(setting.val_path, setting.normalize_val_path)
+    normalize_data(setting.train_path, setting.normalize_train_path)
+    normalize_data(setting.test_path, setting.normalize_test_path)
+    normalize_data(setting.val_path, setting.normalize_val_path)

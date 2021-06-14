@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import sys
 import os
 import threading
@@ -9,12 +10,15 @@ import numpy as np
 from random import randint
 from skimage import io
 
+=======
+>>>>>>> PROD
 from src.data_preprocesing import prepare_data
-from src.mrcnn import visualize
 from src.settings import Setting
+import os
 from pathlib import Path
 from generative_inpainting.test import run_gan
 
+<<<<<<< HEAD
 import src.coco as network
 
 from flask import Flask
@@ -258,3 +262,10 @@ if __name__ == "__main__":
 
     app.config['SECRET_KEY'] = 'this_should_be_secret'
     app.run(host='127.0.0.1', port=5000, debug=True, threaded=True)
+=======
+
+if __name__ == "__main__":
+    os.makedirs(Path('src/images_all'), exist_ok=True)
+    setting = Setting('src')
+    prepare_data(setting)
+>>>>>>> PROD
