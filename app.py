@@ -45,6 +45,16 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def is_correct_filename(filename: str) -> bool:
+    counter = 0
+    for ch in filename:
+        if ch == '.':
+            counter += 1
+    if counter == 0 or counter > 1:
+        return False
+    return True
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -56,6 +66,10 @@ def index():
 
         if file.filename == '':
             flash('No selected file')
+            return redirect(request.url)
+
+        if not is_correct_filename(file.filename):
+            flash('Bad file name')
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
