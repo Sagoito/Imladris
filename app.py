@@ -50,9 +50,14 @@ def is_correct_filename(filename: str) -> bool:
     for ch in filename:
         if ch == '.':
             counter += 1
+
     if counter == 0 or counter > 1:
         return False
-    return True
+    else:
+        list_of_two = filename.split(sep=".")
+        if list_of_two[0] == '':
+            return False
+        return True
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -99,6 +104,9 @@ def index():
             delete.start()
 
             return redirect(url_for('show_image'))
+        else:
+            flash("Bad extension allowed extensions jpg, png and jpeg")
+            return redirect(request.url)
 
     return render_template('index.html')
 
