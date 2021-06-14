@@ -282,5 +282,5 @@ def get_model():
     print("Loading weights ", model_path)
 
     model.load_weights(model_path, by_name=True)
-
+    model.keras_model._make_predict_function()
     return model, dataset.class_names

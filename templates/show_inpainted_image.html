@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <link href="../static/bootstrap-5.0.1-dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="../static/bootstrap-5.0.1-dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
-    <script src="../static/onClick.js"></script>
     <style>
         .bg{
             background-image: url('../static/images/mt-fuji-1407799.jpg');
@@ -25,16 +24,19 @@
   <main class="special-card">
     <div class="container col-xxl-8 px-4 py-5">
       <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+        <div class="col-6">
+            <h1 class="display-5 fw-bold lh-1 mb-3">Your image</h1>
+            <img src="{{url_for('static', filename=name_original)}}" class="d-block mx-lg-auto img-fluid rounded" width="700" height="500" loading="lazy">
+        </div>
+        <div class="col-6">
+          <h1 class="display-5 fw-bold lh-1 mb-3">Inpainted image</h1>
+          <img src="{{url_for('static', filename=name)}}" class="d-block mx-lg-auto img-fluid rounded" width="700" height="500" loading="lazy">
+        </div>
         <div class="col-12">
-            <h1 class="display-5 text-center fw-bold lh-1 mb-3">Choose object to be deleted</h1>
-            <img id="pic_segm" src="{{url_for('static', filename=name)}}" class="d-block mx-lg-auto img-fluid rounded"  onclick="onClick(event)" alt="">
-          </div>
-          <div class="col-12">
-            <form method="POST" enctype="multipart/form-data">
-              <input id="cords" type="hidden" name="cords">
-              <input class="d-block mx-lg-auto btn btn-primary btn-lg px-4 me-md-2" style="margin-top: 10px;" type="submit" value="Submit">
-            </form>
-          </div>
+                <a href="{{url_for('static', filename=name)}}" download="inpainted_photo.jpg" class="mx-lg-auto btn btn-primary btn-lg px-4 me-md-2" style="margin-top: 10px;">
+                    Download
+                </a>
+        </div>
       </div>
       </div>
   </main>

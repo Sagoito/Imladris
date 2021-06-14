@@ -133,6 +133,9 @@ def remove_images(names: list, setting, sec: int) -> None:
 @app.route('/show_inpainted_image')
 def show_inpainted_image():
     filename_out = clipboard.get()
+    filename = "user_image/" + session['filename']
+    print(filename_out)
+    print(filename)
     names = [
         session['filename'],
         session['filename_segmented'],
@@ -144,7 +147,7 @@ def show_inpainted_image():
     """
     delete = threading.Thread(target=remove_images, args=(names, setting, 10))
     delete.start()
-    return render_template('show_image.html', name=filename_out)
+    return render_template('show_inpainted_image.html', name_original=filename, name=filename_out)
 
 
 def prepare_masked_image():
@@ -208,7 +211,6 @@ def show_image():
     Now "choosen_object_pixels" is a dict of pixels in choosen object's area or None if (cords['y_cords'],cords['x_cords'])
     are not from any object area
     And now we can use that to remove this obbject form picture     
-
     << DEVELOP STUFF TO HELP IN DEBUG BUT TO REMOVE IN FINAL VERSION >>        
     if choosen_object_pixels != None: # if choosen coords are in any object area                       
         print(choosen_object_pixels)
