@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link href="../static/bootstrap-5.0.1-dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../static/bootstrap-5.0.1-dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <style>
+        .bg{
+            background-image: url('../static/images/mt-fuji-1407799.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 100vh;
+        }
+        .special-card {
+          background: rgba(0,0,0,0.5);
+          height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg" style="color: #EDEEED">
+{% extends "base.html" %}
+{% block content %}
+  <main class="special-card">
+    <div class="container col-xxl-8 px-4 py-5">
+      <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+        <div class="col-6">
+            <h1 class="display-5 fw-bold lh-1 mb-3">Your image</h1>
+            <img src="{{url_for('static', filename=name_original)}}" class="d-block mx-lg-auto img-fluid rounded" width="700" height="500" loading="lazy">
+        </div>
+        <div class="col-6">
+          <h1 class="display-5 fw-bold lh-1 mb-3">Inpainted image</h1>
+          <img src="{{url_for('static', filename=name)}}" class="d-block mx-lg-auto img-fluid rounded" width="700" height="500" loading="lazy">
+        </div>
+        <div class="col-12">
+                <a href="{{url_for('static', filename=name)}}" download="inpainted_photo.jpg" class="mx-lg-auto btn btn-primary btn-lg px-4 me-md-2" style="margin-top: 10px;">
+                    Download
+                </a>
+        </div>
+      </div>
+      </div>
+  </main>
+{% endblock content %}
+</body>
+</html>

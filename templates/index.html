@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link href="../static/bootstrap-5.0.1-dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../static/bootstrap-5.0.1-dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <style>
+        .bg{
+            background-image: url('../static/images/mt-fuji-1407799.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 100vh;
+        }
+        .special-card {
+          background: rgba(0,0,0,0.5);
+          height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg" style="color: #EDEEED">
+{% extends "base.html" %}
+{% block content %}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for msg in messages %}
+        <p>{{msg}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <main class="special-card">
+    <div class="container col-xxl-8 px-4 py-5">
+      <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+        <div class="col-10 col-sm-8 col-lg-6">
+          <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="../static/images/original.jpg" class="d-block mx-lg-auto img-fluid rounded" alt="" width="700" height="500" loading="lazy">
+              </div>
+              <div class="carousel-item">
+                <img src="../static/images/segmented.jpg" class="d-block mx-lg-auto img-fluid rounded" alt="" width="700" height="500" loading="lazy">
+              </div>
+              <div class="carousel-item">
+                <img src="../static/images/out.jpg" class="d-block mx-lg-auto img-fluid rounded" alt="" width="700" height="500" loading="lazy">
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <h1 class="display-5 fw-bold lh-1 mb-3">Add your image</h1>
+          <p class="lead"> On right side you can see an example.</p>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <form method="POST" enctype="multipart/form-data">
+              <input class="form-control form-control-lg" type="file" name="file">
+              <input class="btn btn-primary btn-lg px-4 me-md-2" style="margin-top: 10px;" type="submit" value="Upload">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock content %}
+</body>
+</html>
