@@ -33,3 +33,11 @@ All you need to do is
 <li>Download weights for inpaiting network https://drive.google.com/drive/folders/1CUQa26Pb_AioJjBYTpX3JkPme3M4WcJZ?hl=pl and put it in generative_inpaiting/model_logs/release_places2_256 folder</li>
 <li>Download http://images.cocodataset.org/annotations/annotations_trainval2017.zip and put it in src/annotations/ folder</li>
 <li>Also you need to use pip install -r re quirements.txt to install other requirements</li>
+</ul>
+  
+# Citation
+  <ul>
+  <li>Mask R-CNN for object detection and instance segmentation on Keras and TensorFlow - https://github.com/matterport/Mask_RCNN - Waleed Abdulla - 2017</li>
+  <li>Generative Image Inpainting with Contextual Attention - https://github.com/JiahuiYu/generative_inpainting - Yu, Jiahui and Lin, Zhe and Yang, Jimei and Shen, Xiaohui and Lu, Xin and Huang, Thomas S - 2018</li>
+  <li>Free-Form Image Inpainting with Gated Convolution - https://github.com/JiahuiYu/generative_inpainting - Yu, Jiahui and Lin, Zhe and Yang, Jimei and Shen, Xiaohui and Lu, Xin and Huang, Thomas S - 2018</li>
+  </ul>
