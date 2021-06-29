@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import sys
 import os
 import threading
@@ -10,15 +9,12 @@ import numpy as np
 from random import randint
 from skimage import io
 
-=======
->>>>>>> PROD
 from src.data_preprocesing import prepare_data
+from src.mrcnn import visualize
 from src.settings import Setting
-import os
 from pathlib import Path
 from generative_inpainting.test import run_gan
 
-<<<<<<< HEAD
 import src.coco as network
 
 from flask import Flask
@@ -49,6 +45,21 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def is_correct_filename(filename: str) -> bool:
+    counter = 0
+    for ch in filename:
+        if ch == '.':
+            counter += 1
+
+    if counter == 0 or counter > 1:
+        return False
+    else:
+        list_of_two = filename.split(sep=".")
+        if list_of_two[0] == '':
+            return False
+        return True
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -60,6 +71,10 @@ def index():
 
         if file.filename == '':
             flash('No selected file')
+            return redirect(request.url)
+
+        if not is_correct_filename(file.filename):
+            flash('Bad file name')
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
@@ -89,6 +104,9 @@ def index():
             delete.start()
 
             return redirect(url_for('show_image'))
+        else:
+            flash("Bad extension allowed extensions jpg, png and jpeg")
+            return redirect(request.url)
 
     return render_template('index.html')
 
@@ -115,6 +133,9 @@ def remove_images(names: list, setting, sec: int) -> None:
 @app.route('/show_inpainted_image')
 def show_inpainted_image():
     filename_out = clipboard.get()
+    filename = "user_image/" + session['filename']
+    print(filename_out)
+    print(filename)
     names = [
         session['filename'],
         session['filename_segmented'],
@@ -126,7 +147,7 @@ def show_inpainted_image():
     """
     delete = threading.Thread(target=remove_images, args=(names, setting, 10))
     delete.start()
-    return render_template('show_image.html', name=filename_out)
+    return render_template('show_inpainted_image.html', name_original=filename, name=filename_out)
 
 
 def prepare_masked_image():
@@ -190,7 +211,6 @@ def show_image():
     Now "choosen_object_pixels" is a dict of pixels in choosen object's area or None if (cords['y_cords'],cords['x_cords'])
     are not from any object area
     And now we can use that to remove this obbject form picture     
-
     << DEVELOP STUFF TO HELP IN DEBUG BUT TO REMOVE IN FINAL VERSION >>        
     if choosen_object_pixels != None: # if choosen coords are in any object area                       
         print(choosen_object_pixels)
@@ -211,6 +231,8 @@ def run_model(setting, clipboard, run_statement):
             file_path = os.path.join(setting.user_image, filename)
 
             image = io.imread(file_path)
+            if len(image.shape) > 2 and image.shape[2] == 4:
+                image = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
             results = model.detect([image], verbose=1)
 
             r = results[0]
@@ -262,10 +284,3 @@ if __name__ == "__main__":
 
     app.config['SECRET_KEY'] = 'this_should_be_secret'
     app.run(host='127.0.0.1', port=5000, debug=True, threaded=True)
-=======
-
-if __name__ == "__main__":
-    os.makedirs(Path('src/images_all'), exist_ok=True)
-    setting = Setting('src')
-    prepare_data(setting)
->>>>>>> PROD

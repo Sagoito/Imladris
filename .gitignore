@@ -139,3 +139,12 @@ mask_rcnn_coco.h5
 /src/test2017
 /src/train2017
 /src/val2017
+
+# Specified files
+/src/annotations/
+mask_rcnn_coco.h5
+/src/images_all/
+/src/logs
+/src/test2017
+/src/train2017
+/src/val2017
