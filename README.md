@@ -1,7 +1,6 @@
 # Imladris
 This university group project aims to develop a neural network architecture that allows the removal of objects from photos added by the user using deep learning techniques.
 
-Contributors
 # Members of group
 
 <table>
